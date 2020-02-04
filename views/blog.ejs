@@ -1,0 +1,12 @@
+<%- include('partials/header') %>
+
+<% let title = data.title %>
+<% let url = data.url %>
+<% let body = data.body %>
+<% let date = data.date %>
+
+<h1><%= title %></h1>
+<h3>Posted: <%= date %></h1>
+<p><%= data.body %></p>
+
+<%- include('partials/footer') %>

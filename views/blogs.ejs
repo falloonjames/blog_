@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+<div class="ui labeled button" tabindex="0">
+        <div class="ui blue button">
+          <i class="code icon"></i> Blogs
+        </div>
+        <a class="ui basic green left pointing label">
+          <%= data.length %>
+        </a>
+</div>
+
+<% data.forEach((db)=>{ %>
+    <div>
+        <div class="ui fluid image">
+            <a class="ui white right corner label" href="/blogs/<%= db.id %>">
+                <i class="info icon"></i>
+            </a>
+            <a class="ui red left corner label" href="/blogs/delete/<%= db.id %>">
+              <i class="trash icon"></i>
+          </a>
+            <img class="ui image" src=<%= db.url %> alt="image loading">
+        </div>
+        
+    </div>
+<% }) %> 
+<%- include('partials/footer') %>
