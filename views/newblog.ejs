@@ -3,17 +3,21 @@
         <form class="ui form" action="/blogs" method="post">
             <div class="field">
                 <label>Blog Title</label>
-                <input type="text" name="title" id="title" placeholder="Blog Title" required>
+                <input type="text" name="blog[title]" id="title" placeholder="Blog Title" required>
             </div>
             <div class="field">
                     <label>Image URL</label>
-                    <input type="url" name="url" id="url" placeholder="http://your-image.jpg" required>
+                    <input type="url" name="blog[url]" id="url" placeholder="http://your-image.jpg" required>
             </div>
             <div class="field">
                 <label>Blog Blody</label>
-                <textarea type="text" name="body" id="body" placeholder="Enter you blod thoughts here..."></textarea>
+                <textarea name="blog[body]" id="body" placeholder="Enter you blog thoughts here..." required></textarea>
             </div>
-            <button class="ui button" type="submit" id="submit">Submit</button>
+            <div class="ui buttons">
+                <button class="ui button" id="cancel-button" onclick="gohome()">Cancel</button>
+                <div class="or"></div>
+                <button class="ui positive button">Submit</button>
+            </div>
         </form>
 </div>
 

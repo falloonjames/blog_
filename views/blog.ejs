@@ -5,8 +5,26 @@
 <% let body = data.body %>
 <% let date = data.date %>
 
-<h1><%= title %></h1>
-<h3>Posted: <%= date %></h1>
-<p><%= data.body %></p>
+<div class="ui main text container segment">
+    <div class="ui huge header"><%= title %>
+    </div>
+    
+    <div class="item">
+        <div class="ui top attached">
+            <img class="ui centered rounded image" src="<%= url %>">
+            <a href="/blogs/<%= data._id %>/edit"><button class="ui compact labeled icon button right floated">
+                    <i class="edit icon"></i>
+                    Edit
+            </button></a>
+            <span class="content"><%= date.toDateString() %></span>
+            <div class="description">
+                <p><%= data.body %></p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
 
 <%- include('partials/footer') %>

@@ -2,12 +2,14 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const methodOverride = require('method-override')
 
 // APP config
 mongoose.connect('mongodb://localhost/restful_app', {useNewUrlParser: true, useUnifiedTopology: true});
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(methodOverride("_method"));
 
 // DB Schema
 const blogSchema = new mongoose.Schema({
@@ -38,34 +40,60 @@ app.get('/blogs/new', (req, res)=>{
 
 // Get Individual Info for Blogs
 app.get('/blogs/:id', (req, res)=>{
-    let id = req.params.id
-    console.log(id)
+    let id = req.params.id;
     Blog.findById(id, (err, data)=>{
-        console.log(data);
-        res.render('blog', {data: data});
+        if(err){
+            res.redirect('/');
+            console.log('There was an error finding blog: ', err);
+        }else{
+             res.render('blog', {data: data});
+        }
+    });
+});
+
+// Show edit page
+app.get('/blogs/:id/edit', (req, res)=>{
+    Blog.findById(req.params.id, (err, data)=>{
+        if(err){
+            res.redirect('/');
+            console.log('There was an error finding blog: ', err);
+        }else{
+             res.render('edit', {data: data});
+        }
+    });
+});
+
+// Update single blog post
+app.put('/blogs/:id', (req, res)=>{
+    // mongoose fnid and update
+    Blog.findByIdAndUpdate(req.params.id, req.body.blog, (err, data)=>{
+        if(err){
+            res.redirect('/');
+            console.log('There was an error Updating blog: ', err);
+        }else{
+             res.redirect('/blogs/' + req.params.id);
+        }
     });
 });
 
 // Delete Individual blog
 app.get('/blogs/delete/:id', (req, res)=>{
     let id = req.params.id
-    console.log(id)
     Blog.findByIdAndDelete(id, (err)=>{
         if(!err){
             res.redirect('/blogs');
+        }else {
+            // Toast popin here would be nice
+            console.log('Error deleting blog: ', err);
         }
     });
 });
 
 app.post('/blogs', (req, res)=>{
-    let newBlog = {
-        title: req.body.title,
-        url: req.body.url,
-        body: req.body.body
-    }
-    Blog.create(newBlog, (err)=>{
+    
+    Blog.create(req.body.blog, (err)=>{
         if(err){
-            console.log(err);
+            console.log('Error creating blog: ', err);
         }else{
             res.redirect('/blogs');
         }
