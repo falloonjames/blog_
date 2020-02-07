@@ -1,0 +1,20 @@
+<%- include('partials/header') %>
+<div class="ui labeled button" tabindex="0">
+        <div class="ui blue button">
+          <i class="code icon"></i> Blogs
+        </div>
+        <a class="ui basic green left pointing label">
+          <%= data.length %>
+        </a>
+</div>
+
+<div class="ui placeholder segment">
+        <div class="ui icon header">
+          <i class="code icon"></i>
+          No blogs found.
+        </div>
+        <button class="ui primary button" onclick=create()>Create New Blog</butto>
+      </div>
+
+</div>
+<%- include('partials/footer') %>
