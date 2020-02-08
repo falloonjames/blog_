@@ -2,14 +2,17 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const methodOverride = require('method-override')
+const methodOverride = require('method-override');
+const sanitizer = require('express-sanitizer');
 
 // APP config
 mongoose.connect('mongodb://localhost/restful_app', {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.set('useFindAndModify', false);
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
+app.use(sanitizer());
 
 // DB Schema
 const blogSchema = new mongoose.Schema({
@@ -29,7 +32,12 @@ app.get('/', (req, res)=>{
 // Get all blogs | Main page
 app.get('/blogs', (req, res)=>{
     Blog.find({}, (err, data)=>{
-        res.render('blogs', {data: data});
+        // if no blogs render prompt.ejs
+        if(data.length == 0){
+            res.render('createPrompt', {data: data});
+        }else{
+            res.render('blogs', {data: data});
+        }
     });
 });
 
@@ -65,6 +73,7 @@ app.get('/blogs/:id/edit', (req, res)=>{
 
 // Update single blog post
 app.put('/blogs/:id', (req, res)=>{
+    req.body.blog.body = req.sanitize(req.body.blog.body);
     // mongoose fnid and update
     Blog.findByIdAndUpdate(req.params.id, req.body.blog, (err, data)=>{
         if(err){
@@ -89,8 +98,9 @@ app.get('/blogs/delete/:id', (req, res)=>{
     });
 });
 
+// Create single blog post
 app.post('/blogs', (req, res)=>{
-    
+    req.body.blog.body = req.sanitize(req.body.blog.body);
     Blog.create(req.body.blog, (err)=>{
         if(err){
             console.log('Error creating blog: ', err);
