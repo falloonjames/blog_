@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const sanitizer = require('express-sanitizer');
+const Blog = require('./models/blog');
 
 // APP config
 mongoose.connect('mongodb://localhost/restful_app', {useNewUrlParser: true, useUnifiedTopology: true});
@@ -13,16 +14,6 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
 app.use(sanitizer());
-
-// DB Schema
-const blogSchema = new mongoose.Schema({
-    title: String,
-    url: String,
-    body: String,
-    date: {type: Date, default: Date.now}
-});
-
-const Blog = mongoose.model('Blog', blogSchema);
 
 // RESTFUL routes
 app.get('/', (req, res)=>{
