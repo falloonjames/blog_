@@ -4,6 +4,7 @@
 <% let url = data.url %>
 <% let body = data.body %>
 <% let date = data.date %>
+<% let comments_obj = data.comments %>
 
 <div class="ui main text container segment">
     <div class="ui huge header"><%= title %>
@@ -19,6 +20,10 @@
             <span class="content"><%= date.toDateString() %></span>
             <div class="description">
                 <p><%- data.body %></p>
+            </div>
+            <div class="description">
+                <h3>Comments</h3>
+                <p><%= comments_obj[0].content %></p>
             </div>
         </div>
     </div>

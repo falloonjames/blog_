@@ -1,13 +1,15 @@
-const express = require('express');
-const app = express();
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const methodOverride = require('method-override');
-const sanitizer = require('express-sanitizer');
-const Blog = require('./models/blog');
+const   methodOverride  = require('method-override'),   
+        express         = require('express'),
+        app             = express(),
+        mongoose        = require('mongoose'),
+        bodyParser      = require('body-parser'),
+        sanitizer       = require('express-sanitizer'),
+        Blog            = require('./models/blog'),
+        seedDB          = require('./seed')
 
 // APP config
-mongoose.connect('mongodb://localhost/restful_app', {useNewUrlParser: true, useUnifiedTopology: true});
+seedDB();
+mongoose.connect('mongodb://localhost/blog', {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useFindAndModify', false);
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -40,14 +42,23 @@ app.get('/blogs/new', (req, res)=>{
 // Get Individual Info for Blogs
 app.get('/blogs/:id', (req, res)=>{
     let id = req.params.id;
-    Blog.findById(id, (err, data)=>{
+    Blog.findOne({_id: id}).populate('comments').exec((err, data)=>{
         if(err){
             res.redirect('/');
             console.log('There was an error finding blog: ', err);
         }else{
              res.render('blog', {data: data});
-        }
+        } 
     });
+
+    // Blog.findById(id, (err, data)=>{
+    //     if(err){
+    //         res.redirect('/');
+    //         console.log('There was an error finding blog: ', err);
+    //     }else{
+    //          res.render('blog', {data: data});
+    //     }
+    // });
 });
 
 // Show edit page
