@@ -16,7 +16,8 @@ const   methodOverride  = require('method-override'),
 
 // APP config ===================================================================================
 seedDB();
-mongoose.connect('mongodb://localhost/blog', {useNewUrlParser: true, useUnifiedTopology: true});
+let uri = 'mongodb://falloonjames:Boxing1987@ds215988.mlab.com:15988/heroku_jb9r1d7q'
+mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useFindAndModify', false);
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
