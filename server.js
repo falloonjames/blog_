@@ -14,7 +14,7 @@ const   methodOverride  = require('method-override'),
 // create users
 // reply
 
-// APP config
+// APP config ===================================================================================
 seedDB();
 mongoose.connect('mongodb://localhost/blog', {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useFindAndModify', false);
@@ -23,8 +23,9 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
 app.use(sanitizer());
+//===============================================================================================
 
-// RESTFUL routes
+// RESTFUL routes ===============================================================================
 app.get('/', (req, res)=>{
     res.redirect('/blogs');
 });
@@ -57,15 +58,6 @@ app.get('/blogs/:id', (req, res)=>{
              res.render('blog', {data: data});
         } 
     });
-
-    // Blog.findById(id, (err, data)=>{
-    //     if(err){
-    //         res.redirect('/');
-    //         console.log('There was an error finding blog: ', err);
-    //     }else{
-    //          res.render('blog', {data: data});
-    //     }
-    // });
 });
 
 // Show edit page
@@ -118,6 +110,7 @@ app.post('/blogs', (req, res)=>{
         }
     });
 });
+//===============================================================================================
 
 app.listen(3000, ()=>{
     console.log('running port 3000...');
