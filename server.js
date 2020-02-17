@@ -17,6 +17,7 @@ const   methodOverride  = require('method-override'),
 // APP config ===================================================================================
 seedDB();
 let uri = 'mongodb://falloonjames:Boxing1987@ds215988.mlab.com:15988/heroku_jb9r1d7q'
+const PORT = process.env.PORT || 5000
 mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useFindAndModify', false);
 app.set('view engine', 'ejs');
@@ -24,6 +25,7 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
 app.use(sanitizer());
+// app.listen(listen(PORT)
 //===============================================================================================
 
 // RESTFUL routes ===============================================================================
@@ -113,6 +115,6 @@ app.post('/blogs', (req, res)=>{
 });
 //===============================================================================================
 
-app.listen(3000, ()=>{
-    console.log('running port 3000...');
+app.listen(PORT, ()=>{
+    console.log('running port 5000...');
 });
