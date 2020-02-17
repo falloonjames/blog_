@@ -7,6 +7,13 @@ const   methodOverride  = require('method-override'),
         Blog            = require('./models/blog'),
         seedDB          = require('./seed')
 
+// TODO
+// avatar for users
+// auth0
+// admin
+// create users
+// reply
+
 // APP config
 seedDB();
 mongoose.connect('mongodb://localhost/blog', {useNewUrlParser: true, useUnifiedTopology: true});
