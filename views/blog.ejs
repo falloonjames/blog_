@@ -5,6 +5,7 @@
 <% let body = data.body %>
 <% let date = data.date %>
 <% let comments_obj = data.comments[0] %>
+<% if(data.comments.length === 0) {comments_obj = {}} %>
 
 <div class="ui main text container segment">
     <div class="ui huge header"><%= title %>
@@ -26,7 +27,7 @@
                 <div class="comment">
                     <span class="author"><%= comments_obj.author %>:</span>
                     <div class="metadata">
-                        <span class="date"><%= comments_obj.date.toDateString() %></span>
+                        <span class="date"><%= comments_obj.date %></span>
                     </div>
                     <p><%= comments_obj.content %></p>
                 </div>

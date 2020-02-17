@@ -1,3 +1,28 @@
+// Updates check-list icons on create blog page
+$('#title').keyup(function (e) { 
+    if(this.value.length > 0){
+        $('#step-1').attr('class', 'completed step');
+    }else{
+        $('#step-1').attr('class', 'active step');
+    }
+});
+
+$('#url').keyup(function (e) { 
+    if(this.value.length > 0){
+        $('#step-2').attr('class', 'completed step');
+    }else{
+        $('#step-2').attr('class', 'active step');
+    }
+});
+
+$('#body').keyup(function (e) { 
+    if(this.value.length > 0){
+        $('#step-3').attr('class', 'completed step');
+    }else{
+        $('#step-3').attr('class', 'active step');
+    }
+});
+
 function gohome(){
     window.location.href = "/";
     document.querySelector('#par').innerText = users[0];

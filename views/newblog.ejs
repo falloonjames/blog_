@@ -1,19 +1,19 @@
 <%- include('partials/header') %>
 <div class="ui container">
         <div class="ui ordered steps">
-                <div class="active step">
+                <div class="active step" id="step-1">
                   <div class="content">
                     <div class="title">Add title</div>
                     <div class="description">Choose a name for your blog</div>
                   </div>
                 </div>
-                <div class="active step">
+                <div class="active step" id="step-2">
                   <div class="content">
                     <div class="title">Image URL</div>
                     <div class="description">Enter url of image</div>
                   </div>
                 </div>
-                <div class="active step">
+                <div class="active step" id="step-3">
                   <div class="content">
                     <div class="title">Write your post</div>
                     <div class="description">Enter your main text conent</div>
@@ -30,7 +30,7 @@
                     <input type="url" name="blog[url]" id="url" placeholder="http://your-image.jpg" required>
             </div>
             <div class="field">
-                <label>Blog Blody</label>
+                <label>Blog Body</label>
                 <textarea name="blog[body]" id="body" placeholder="Enter you blog thoughts here..." required></textarea>
             </div>
             <div class="ui buttons">
