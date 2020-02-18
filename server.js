@@ -16,7 +16,12 @@ const   methodOverride  = require('method-override'),
 
 // APP config ===================================================================================
 seedDB();
-let uri = 'mongodb://falloonjames:Boxing1987@ds215988.mlab.com:15988/heroku_jb9r1d7q'
+let uri;
+if(process.argv.length >= 3){
+    uri = 'mongodb://localhost/blog';
+}else{
+    uri = 'mongodb://falloonjames:Boxing1987@ds215988.mlab.com:15988/heroku_jb9r1d7q';
+}
 const PORT = process.env.PORT || 5000
 mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useFindAndModify', false);
