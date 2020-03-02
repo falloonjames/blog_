@@ -5,7 +5,10 @@ const   methodOverride  = require('method-override'),
         bodyParser      = require('body-parser'),
         sanitizer       = require('express-sanitizer'),
         Blog            = require('./models/blog'),
-        seedDB          = require('./seed')
+        seedDB          = require('./seed'),
+        passport        = require('passport'),
+        LocalStratagy   = require('passport-local'),
+        User            = require('./models/user')
 
 // TODO
 // avatar for users
@@ -16,13 +19,16 @@ const   methodOverride  = require('method-override'),
 
 // APP config ===================================================================================
 seedDB();
+
 let uri;
+let PORT = process.env.PORT || 5000
 if(process.argv.length >= 3){
     uri = 'mongodb://localhost/blog';
+    PORT = 3000;
 }else{
     uri = 'mongodb://falloonjames:Boxing1987@ds215988.mlab.com:15988/heroku_jb9r1d7q';
 }
-const PORT = process.env.PORT || 5000
+
 mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
 mongoose.set('useFindAndModify', false);
 app.set('view engine', 'ejs');
@@ -30,8 +36,19 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(methodOverride("_method"));
 app.use(sanitizer());
-// app.listen(listen(PORT)
-//===============================================================================================
+
+app.use(require('express-session')({
+    secret: 'passphrase ftw!',
+    resave: false,
+    saveUninitialized: false
+    
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStratagy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+// ==============================================================================================
 
 // RESTFUL routes ===============================================================================
 app.get('/', (req, res)=>{
@@ -118,8 +135,17 @@ app.post('/blogs', (req, res)=>{
         }
     });
 });
+
+// AUTH routes
+app.get('/register', (req, res)=>{
+    res.render('register')
+});
+
+app.post('/register', (req, res)=>{
+    res.send('signed you up')
+});
 //===============================================================================================
 
 app.listen(PORT, ()=>{
-    console.log('running port 5000...');
+    console.log(`running port ${PORT}...`);
 });

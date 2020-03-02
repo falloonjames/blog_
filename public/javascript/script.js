@@ -31,3 +31,9 @@ function gohome(){
 function create(){
     window.location.href = "/blogs/new";
 };
+
+$('#show-hide-pass').click(()=>{
+    let field = $('#password')[0];
+    field.type === 'password' ? field.type = 'text': field.type = 'password';
+    $('#show-hide-pass').toggleClass('slash');
+})
