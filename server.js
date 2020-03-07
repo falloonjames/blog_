@@ -142,8 +142,22 @@ app.get('/register', (req, res)=>{
 });
 
 app.post('/register', (req, res)=>{
-    res.send('signed you up')
+    let user = new User({username: req.body.user.name});
+
+    User.register(user, req.body.user.password, (err, user)=>{
+        if(err){
+            console.log('Error:', err);
+            return res.render('register');
+        }
+        passport.authenticate('local')(req, res, ()=>{
+            console.log('in callback...');
+            console.log(req, res)
+            // res.redirect('/');
+        });
+        // passport.authenticate('local', { successRedirect: '/', failureRedirect: '/register', })
+    });
 });
+
 //===============================================================================================
 
 app.listen(PORT, ()=>{
