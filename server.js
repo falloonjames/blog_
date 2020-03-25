@@ -1,5 +1,5 @@
-const   methodOverride  = require('method-override'),   
-        express         = require('express'),
+const   express         = require('express'),
+        expressSession  = require('express-session'),
         app             = express(),
         mongoose        = require('mongoose'),
         bodyParser      = require('body-parser'),
@@ -7,8 +7,10 @@ const   methodOverride  = require('method-override'),
         Blog            = require('./models/blog'),
         seedDB          = require('./seed'),
         passport        = require('passport'),
-        LocalStratagy   = require('passport-local'),
-        User            = require('./models/user')
+        LocalStrategy   = require('passport-local'),
+        passportLM      = require('passport-local-mongoose'),
+        User            = require('./models/user'),
+        methodOverride  = require('method-override')
 
 // TODO
 // avatar for users
@@ -23,31 +25,36 @@ seedDB();
 let uri;
 let PORT = process.env.PORT || 5000
 if(process.argv.length >= 3){
-    uri = 'mongodb://localhost/blog';
+    uri = 'mongodb://localhost/blog_v2';
     PORT = 3000;
 }else{
     uri = 'mongodb://falloonjames:Boxing1987@ds215988.mlab.com:15988/heroku_jb9r1d7q';
 }
 
 mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
-mongoose.set('useFindAndModify', false);
+
+app.use(expressSession({
+    secret: "passphrase ftw!",
+    resave: false,
+    saveUninitialized: false
+}));
+
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(methodOverride("_method"));
 app.use(sanitizer());
+app.use(methodOverride("_method"));
 
-app.use(require('express-session')({
-    secret: 'passphrase ftw!',
-    resave: false,
-    saveUninitialized: false
-    
-}));
+// PASSPORT CONFIGURATION
+
+passport.use(new LocalStrategy(User.authenticate()));
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStratagy(User.authenticate()));
+
+
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
 // ==============================================================================================
 
 // RESTFUL routes ===============================================================================
@@ -86,7 +93,7 @@ app.get('/blogs/:id', (req, res)=>{
 });
 
 // Show edit page
-app.get('/blogs/:id/edit', (req, res)=>{
+app.get('/blogs/:id/edit', isLoggedIn,(req, res)=>{
     Blog.findById(req.params.id, (err, data)=>{
         if(err){
             res.redirect('/');
@@ -99,6 +106,7 @@ app.get('/blogs/:id/edit', (req, res)=>{
 
 // Update single blog post
 app.put('/blogs/:id', (req, res)=>{
+    console.log('put request!')
     req.body.blog.body = req.sanitize(req.body.blog.body);
     // mongoose fnid and update
     Blog.findByIdAndUpdate(req.params.id, req.body.blog, (err, data)=>{
@@ -112,7 +120,7 @@ app.put('/blogs/:id', (req, res)=>{
 });
 
 // Delete Individual blog
-app.get('/blogs/delete/:id', (req, res)=>{
+app.get('/blogs/delete/:id', isLoggedIn, (req, res)=>{
     let id = req.params.id
     Blog.findByIdAndDelete(id, (err)=>{
         if(!err){
@@ -142,21 +150,39 @@ app.get('/register', (req, res)=>{
 });
 
 app.post('/register', (req, res)=>{
-    let user = new User({username: req.body.user.name});
-
-    User.register(user, req.body.user.password, (err, user)=>{
+    User.register(new User({username: req.body.username}), req.body.password, (err, user)=>{
         if(err){
             console.log('Error:', err);
             return res.render('register');
         }
         passport.authenticate('local')(req, res, ()=>{
-            console.log('in callback...');
-            console.log(req, res)
-            // res.redirect('/');
+            res.redirect('/blogs');
         });
-        // passport.authenticate('local', { successRedirect: '/', failureRedirect: '/register', })
     });
 });
+
+// Login section
+app.get('/login', (req, res)=>{
+    res.render('login');
+});
+
+app.post('/login', passport.authenticate('local', {
+    successRedirect: '/blogs',
+    failureRedirect: '/login'
+}),  (req, res)=>{
+});
+
+app.get('/logout', (req, res)=>{
+    req.logout();
+    res.redirect('/blogs');
+})
+
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect('/login');
+}
 
 //===============================================================================================
 
