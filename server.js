@@ -14,7 +14,7 @@ const   express         = require('express'),
 
 // TODO
 // avatar for users
-// auth0
+// auth0 [x]
 // admin
 // create users
 // reply
@@ -38,6 +38,11 @@ app.use(expressSession({
     resave: false,
     saveUninitialized: false
 }));
+
+app.use((req, res, next)=>{
+    res.locals.user = req.user;
+    next();
+});
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -69,7 +74,7 @@ app.get('/blogs', (req, res)=>{
         if(data.length == 0){
             res.render('createPrompt', {data: data});
         }else{
-            res.render('blogs', {data: data});
+            res.render('blogs', {data: data, user: req.user});
         }
     });
 });
