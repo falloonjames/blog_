@@ -20,7 +20,7 @@ const   express         = require('express'),
 // reply
 
 // APP config ===================================================================================
-seedDB();
+
 
 let uri;
 let PORT = process.env.PORT || 5000
@@ -32,33 +32,33 @@ if(process.argv.length >= 3){
 }
 
 mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
+app.use(bodyParser.urlencoded({extended: true}));
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
+seedDB();
 
 app.use(expressSession({
     secret: "passphrase ftw!",
     resave: false,
     saveUninitialized: false
 }));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next)=>{
     res.locals.user = req.user;
     next();
 });
 
-app.set('view engine', 'ejs');
-app.use(express.static('public'));
-app.use(bodyParser.urlencoded({extended: true}));
 app.use(sanitizer());
 app.use(methodOverride("_method"));
 
 // PASSPORT CONFIGURATION
 
-passport.use(new LocalStrategy(User.authenticate()));
-app.use(passport.initialize());
-app.use(passport.session());
 
-
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
 
 // ==============================================================================================
 
