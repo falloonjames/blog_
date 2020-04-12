@@ -31,3 +31,26 @@ function gohome(){
 function create(){
     window.location.href = "/blogs/new";
 };
+
+$('#show-hide-pass').click(()=>{
+    let field = $('#password')[0];
+    field.type === 'password' ? field.type = 'text': field.type = 'password';
+    $('#show-hide-pass').toggleClass('slash');
+});
+
+/**
+ * Capitalizes a users name 
+ * eg. john smith -> John Smith
+ * @param {String} name 
+ */
+function namilize(name){
+    name.toLowerCase();
+    let n = [];
+    let array = name.split(' ');
+    array.forEach((part)=>{
+        n.push(part.charAt(0).toUpperCase() + 
+        part.slice(1))
+    });
+
+    return n.join(" ");
+};

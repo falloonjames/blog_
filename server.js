@@ -1,37 +1,66 @@
-const   methodOverride  = require('method-override'),   
-        express         = require('express'),
+const   express         = require('express'),
+        expressSession  = require('express-session'),
         app             = express(),
         mongoose        = require('mongoose'),
         bodyParser      = require('body-parser'),
         sanitizer       = require('express-sanitizer'),
         Blog            = require('./models/blog'),
-        seedDB          = require('./seed')
+        seedDB          = require('./seed'),
+        passport        = require('passport'),
+        LocalStrategy   = require('passport-local'),
+        passportLM      = require('passport-local-mongoose'),
+        User            = require('./models/user'),
+        methodOverride  = require('method-override')
 
 // TODO
 // avatar for users
-// auth0
+// auth0 [x]
 // admin
 // create users
 // reply
 
 // APP config ===================================================================================
-seedDB();
+
+
 let uri;
+let PORT = process.env.PORT || 5000
 if(process.argv.length >= 3){
-    uri = 'mongodb://localhost/blog';
+    uri = 'mongodb://localhost/blog_v2';
+    PORT = 3000;
 }else{
     uri = 'mongodb://falloonjames:Boxing1987@ds215988.mlab.com:15988/heroku_jb9r1d7q';
 }
-const PORT = process.env.PORT || 5000
+
 mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
-mongoose.set('useFindAndModify', false);
+app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(methodOverride("_method"));
+seedDB();
+
+app.use(expressSession({
+    secret: "passphrase ftw!",
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+app.use((req, res, next)=>{
+    res.locals.user = req.user;
+    next();
+});
+
 app.use(sanitizer());
-// app.listen(listen(PORT)
-//===============================================================================================
+app.use(methodOverride("_method"));
+
+// PASSPORT CONFIGURATION
+
+
+
+// ==============================================================================================
 
 // RESTFUL routes ===============================================================================
 app.get('/', (req, res)=>{
@@ -45,7 +74,7 @@ app.get('/blogs', (req, res)=>{
         if(data.length == 0){
             res.render('createPrompt', {data: data});
         }else{
-            res.render('blogs', {data: data});
+            res.render('blogs', {data: data, user: req.user});
         }
     });
 });
@@ -69,7 +98,7 @@ app.get('/blogs/:id', (req, res)=>{
 });
 
 // Show edit page
-app.get('/blogs/:id/edit', (req, res)=>{
+app.get('/blogs/:id/edit', isLoggedIn,(req, res)=>{
     Blog.findById(req.params.id, (err, data)=>{
         if(err){
             res.redirect('/');
@@ -82,6 +111,7 @@ app.get('/blogs/:id/edit', (req, res)=>{
 
 // Update single blog post
 app.put('/blogs/:id', (req, res)=>{
+    console.log('put request!')
     req.body.blog.body = req.sanitize(req.body.blog.body);
     // mongoose fnid and update
     Blog.findByIdAndUpdate(req.params.id, req.body.blog, (err, data)=>{
@@ -95,7 +125,7 @@ app.put('/blogs/:id', (req, res)=>{
 });
 
 // Delete Individual blog
-app.get('/blogs/delete/:id', (req, res)=>{
+app.get('/blogs/delete/:id', isLoggedIn, (req, res)=>{
     let id = req.params.id
     Blog.findByIdAndDelete(id, (err)=>{
         if(!err){
@@ -118,8 +148,49 @@ app.post('/blogs', (req, res)=>{
         }
     });
 });
+
+// AUTH routes
+app.get('/register', (req, res)=>{
+    res.render('register')
+});
+
+app.post('/register', (req, res)=>{
+    User.register(new User({username: req.body.username}), req.body.password, (err, user)=>{
+        if(err){
+            console.log('Error:', err);
+            return res.render('register');
+        }
+        passport.authenticate('local')(req, res, ()=>{
+            res.redirect('/blogs');
+        });
+    });
+});
+
+// Login section
+app.get('/login', (req, res)=>{
+    res.render('login');
+});
+
+app.post('/login', passport.authenticate('local', {
+    successRedirect: '/blogs',
+    failureRedirect: '/login'
+}),  (req, res)=>{
+});
+
+app.get('/logout', (req, res)=>{
+    req.logout();
+    res.redirect('/blogs');
+})
+
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
+    }
+    res.redirect('/login');
+}
+
 //===============================================================================================
 
 app.listen(PORT, ()=>{
-    console.log('running port 5000...');
+    console.log(`running port ${PORT}...`);
 });
