@@ -19,9 +19,9 @@ const   express         = require('express'),
 // admin
 // create users
 // reply
+// Toast pop-ins
 
 // APP config ===================================================================================
-
 
 let uri;
 let PORT = process.env.PORT || 5000
@@ -60,12 +60,6 @@ app.use((req, res, next)=>{
 app.use(sanitizer());
 app.use(methodOverride("_method"));
 
-// PASSPORT CONFIGURATION
-
-
-
-// ==============================================================================================
-
 // RESTFUL routes ===============================================================================
 app.get('/', (req, res)=>{
     res.redirect('/blogs');
@@ -84,7 +78,7 @@ app.get('/blogs', (req, res)=>{
 });
 
 // Create New Blog Page
-app.get('/blogs/new', (req, res)=>{
+app.get('/blogs/new', isLoggedIn,(req, res)=>{
     res.render('newblog');
 });
 
@@ -93,8 +87,8 @@ app.get('/blogs/:id', (req, res)=>{
     let id = req.params.id;
     Blog.findOne({_id: id}).populate('comments').exec((err, data)=>{
         if(err){
+            req.flash('error', 'There was an error finding blog:', err)
             res.redirect('/');
-            console.log('There was an error finding blog: ', err);
         }else{
              res.render('blog', {data: data});
         } 
@@ -105,8 +99,8 @@ app.get('/blogs/:id', (req, res)=>{
 app.get('/blogs/:id/edit', isLoggedIn,(req, res)=>{
     Blog.findById(req.params.id, (err, data)=>{
         if(err){
+            req.flash('error', 'There was an error finding blog:', err)
             res.redirect('/');
-            console.log('There was an error finding blog: ', err);
         }else{
              res.render('edit', {data: data});
         }
@@ -117,13 +111,14 @@ app.get('/blogs/:id/edit', isLoggedIn,(req, res)=>{
 app.put('/blogs/:id', (req, res)=>{
     console.log('put request!')
     req.body.blog.body = req.sanitize(req.body.blog.body);
-    // mongoose fnid and update
+    // mongoose find and update
     Blog.findByIdAndUpdate(req.params.id, req.body.blog, (err, data)=>{
         if(err){
+            req.flash('error', 'There was an error Updating blog: ', err);
             res.redirect('/');
-            console.log('There was an error Updating blog: ', err);
         }else{
-             res.redirect('/blogs/' + req.params.id);
+            req.flash('success', 'Blog updated successfully!');
+            res.redirect('/blogs/' + req.params.id);
         }
     });
 });
@@ -133,10 +128,11 @@ app.get('/blogs/delete/:id', isLoggedIn, (req, res)=>{
     let id = req.params.id
     Blog.findByIdAndDelete(id, (err)=>{
         if(!err){
+            req.flash('success', 'Deleted blog!');
             res.redirect('/blogs');
         }else {
-            // Toast popin here would be nice
-            console.log('Error deleting blog: ', err);
+            req.flash('error', 'Problem Deleting blog!');
+            res.redirect('/blogs');
         }
     });
 });
@@ -148,6 +144,7 @@ app.post('/blogs', (req, res)=>{
         if(err){
             console.log('Error creating blog: ', err);
         }else{
+            req.flash('success', 'New blog created successfully!');
             res.redirect('/blogs');
         }
     });
@@ -183,9 +180,9 @@ app.post('/login', passport.authenticate('local', {
 
 app.get('/logout', (req, res)=>{
     req.logout();
-    req.flash('success', 'Logged you out!')
+    req.flash('success', 'Logged out!')
     res.redirect('/blogs');
-})
+});
 
 function isLoggedIn(req, res, next){
     if(req.isAuthenticated()){
