@@ -1,0 +1,11 @@
+- name: Cypress.io
+  uses: cypress-io/github-action@v1.16.1
+  with:
+    # Sends test results to Cypress Dashboard
+    record: # optional
+    # Set configuration values. Separate multiple values with a comma. The values set here override any values set in your configuration file.
+    config: # optional
+    # Path to a JSON file where configuration values are set.
+    config-file: # optional, default is cypress.json
+    # Sets Cypress environment variables
+    env: # optional
